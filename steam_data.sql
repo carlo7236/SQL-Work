@@ -73,20 +73,21 @@ WHERE Game_Title LIKE "Call of Duty%" AND Behavior = "purchase"
 GROUP BY Game_Title
 ORDER BY COUNT(Behavior) ASC;
 
-# Find the game with the most amount of purchases BUT with the least amount of hours played
-SELECT Game_Title, Behavior, 
+# Seperates max purchases and max hours into two seperate cols
+SELECT Game_Title,
 COUNT(CASE WHEN Behavior = "purchase" THEN Value END) AS max_purchases,
 SUM(CASE WHEN Behavior = 'play' THEN Value END) AS max_hours
 FROM Steam_Data.steamdata 
-GROUP BY Game_Title, Behavior; 
+GROUP BY Game_Title;
 
-# Merges max_purchases and max_hours into one column through concatenation
-SELECT Game_Title, Behavior, 
-COUNT(CASE WHEN Behavior = "purchase" THEN Value END) +
-SUM(CASE WHEN Behavior = 'play' THEN Value ELSE '' END) AS max_behaviors
+# Finds the games with the most purchases but least amount of hours accross all players
+SELECT Game_Title,
+COUNT(CASE WHEN Behavior = "purchase" THEN Value END) AS max_purchases,
+SUM(CASE WHEN Behavior = 'play' THEN Value END) AS max_hours
 FROM Steam_Data.steamdata 
-GROUP BY Game_Title, Behavior
-LIMIT 20;
+GROUP BY Game_Title
+HAVING max_hours <= 1
+ORDER BY max_purchases DESC; 
 
 # Used to validate the results above
 SELECT Game_Title, Behavior, SUM(Value)
@@ -94,15 +95,10 @@ FROM Steam_Data.steamdata
 WHERE Behavior = "play" AND Game_Title = "The Elder Scrolls V Skyrim"
 GROUP BY Game_Title;
 
-# Finds total amount of users in table
-SELECT DISTINCT COUNT(User_ID) AS total_users FROM Steam_Data.steamdata;
-
-# Find most active users 
-SELECT User_ID, Game_Title, Behavior, SUM(Value) as hours_played
+SELECT DISTINCT COUNT(Value)/COUNT(User_ID)
+FILTER(WHERE Value = 0)
 FROM Steam_Data.steamdata
-WHERE Behavior = "play"
-GROUP BY User_ID, Game_Title
-ORDER BY hours_played DESC;
+WHERE Value = 0;
 
 
 
