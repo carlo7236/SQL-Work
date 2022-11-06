@@ -43,7 +43,7 @@ ORDER BY COUNT(Behavior) ASC; # Orders games starting with the lowest purchases
 # Which Call of Duty games exist on steam (aka how old is this data set?)?
 SELECT * 
 FROM Steam_Data.steamdata
-WHERE Game_Title LIKE "Call of Duty%";
+WHERE Game_Title LIKE "Call of Duty%"; #Filters Game_Titles that start with "Call of Duty"
 
 # Which Call of Duty experience has the most amount of hours put into it? 
 SELECT Game_Title, Behavior, SUM(Value) as max_cod_hours
@@ -72,3 +72,44 @@ FROM Steam_Data.steamdata
 WHERE Game_Title LIKE "Call of Duty%" AND Behavior = "purchase"
 GROUP BY Game_Title
 ORDER BY COUNT(Behavior) ASC;
+
+# Find the game with the most amount of purchases BUT with the least amount of hours played
+SELECT Game_Title, Behavior, 
+COUNT(CASE WHEN Behavior = "purchase" THEN Value END) AS max_purchases,
+SUM(CASE WHEN Behavior = 'play' THEN Value END) AS max_hours
+FROM Steam_Data.steamdata 
+GROUP BY Game_Title, Behavior; 
+
+# Merges max_purchases and max_hours into one column through concatenation
+SELECT Game_Title, Behavior, 
+COUNT(CASE WHEN Behavior = "purchase" THEN Value END) +
+SUM(CASE WHEN Behavior = 'play' THEN Value ELSE '' END) AS max_behaviors
+FROM Steam_Data.steamdata 
+GROUP BY Game_Title, Behavior
+LIMIT 20;
+
+# Used to validate the results above
+SELECT Game_Title, Behavior, SUM(Value)
+FROM Steam_Data.steamdata
+WHERE Behavior = "play" AND Game_Title = "The Elder Scrolls V Skyrim"
+GROUP BY Game_Title;
+
+# Finds total amount of users in table
+SELECT DISTINCT COUNT(User_ID) AS total_users FROM Steam_Data.steamdata;
+
+# Find most active users 
+SELECT User_ID, Game_Title, Behavior, SUM(Value) as hours_played
+FROM Steam_Data.steamdata
+WHERE Behavior = "play"
+GROUP BY User_ID, Game_Title
+ORDER BY hours_played DESC;
+
+
+
+
+
+
+
+
+
+
