@@ -7,14 +7,14 @@ There are four columns:
 User_ID: the ID of the player
 Game_Title: The title of the game
 Behavior: The action that was taken (Purchase or Play)
-Value: Behavior represented as a numerical value (hours played for play and purchase = 1)
+Value: Behavior represented numerically (Purchase = 1, Play = amount of hours spent playing a game)
 
 The following research questions were asked:
 
 1. Collectively, which games have the most/least amount of hours put into them?
 2. Which games have been purchased the most/least on Steam?
 3. Which Call of Duty title has the most/least amount of hours put into it? 
-4. Which Call of Duty title hsas been purchased the most/least?
+4. Which Call of Duty title has been purchased the most/least?
 5. Which games have been purchased the most but have the least amount of playtime?
 6. What percentage of users purchase a game but never actually play it (i.e., hours played = 0)?
 
@@ -125,8 +125,9 @@ WHERE Value = 0 # Hours played must be 0
 GROUP BY Game_Title # Group by game title
 ORDER BY noplay DESC; # Display highest amount of people with 0 hours first
 
-
-
+# Finds total amount of players who purchase a game but never play them (Value = 0)
+SELECT ROUND(COUNT(CASE WHEN Value = 0 THEN User_ID END) * 100/ COUNT(User_ID), 2)
+FROM Steam_Data.steamdata;
 
 
 
